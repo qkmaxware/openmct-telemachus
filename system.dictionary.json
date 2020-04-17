@@ -1,0 +1,66 @@
+{
+    "name": "Kerbol System",
+    "bodies": [
+        {
+            "name": "Kerbol",
+            "identifier": "sun_kerbol",
+            "measurements": [
+                {
+                    "name": "f.throttle",
+                    "identifier": "f.throttle",
+                    "units": "%",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "Moho",
+            "identifier": "planet_moho",
+            "measurements": [
+
+            ]
+        },
+        {
+            "name": "Eve",
+            "identifier": "planet_eve",
+            "measurements": [
+
+            ]
+        },
+        {
+            "name": "Kerbin",
+            "identifier": "planet_kerbin",
+            "measurements": [
+
+            ]
+        },
+        {
+            "name": "Duna",
+            "identifier": "planet_duna",
+            "measurements": [
+
+            ]
+        },
+        {
+            "name": "Dres",
+            "identifier": "planet_dres",
+            "measurements": [
+
+            ]
+        },
+        {
+            "name": "Jool",
+            "identifier": "planet_jool",
+            "measurements": [
+
+            ]
+        },
+        {
+            "name": "Eeloo",
+            "identifier": "planet_eeloo",
+            "measurements": [
+
+            ]
+        }
+    ]
+}

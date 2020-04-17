@@ -1,0 +1,12 @@
+{
+  "name": "openmct-telemachus",
+  "version": "1.0.0",
+  "description": "Telemetry adapter for kerbal space program telemachus plugin",
+  "keywords": [
+    "openmct",
+    "telemachus",
+    "telemetry"
+  ],
+  "author": "Colin Halseth",
+  "license": "MIT"
+}

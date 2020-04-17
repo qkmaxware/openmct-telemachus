@@ -65,7 +65,7 @@ module.exports = function install (app) {
             res.json([]);
             return;
         }
-        var query = JSON.parse(req.body);
+        var query = (typeof(req.body) === "string" ? JSON.parse(req.body) : req.body);
         var field = req.params.field;
         if (history[field] && history[field].length > 0) {
             var elements = history[field];
@@ -85,10 +85,10 @@ module.exports = function install (app) {
                         var max = telemetry[0];
                         var min = telemetry[0];
                         for (var i = 0; i < telemetry.length; i++) {
-                            if (telemetry[i].timestamp > max.timestamp) {
+                            if (telemetry[i].value > max.value) {
                                 max = telemetry[i];
                             }
-                            if (telemetry[i].timestamp < min.timestamp) {
+                            if (telemetry[i].value < min.value) {
                                 min = telemetry[i];
                             }
                         }

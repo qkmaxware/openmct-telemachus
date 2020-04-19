@@ -72,14 +72,17 @@ module.exports = function install (app) {
             var telemetry = elements.filter((element) => {
                 element.timestamp >= query.start && element.timestamp <= query.end
             });
-            if (telemetry.length < 1)
+            if (telemetry.length < 1) {
                 res.json([]); // send empty array
+                return;
+            }
 
             if (query.strategy) {
                 switch (query.strategy) {
                     case "latest": {
                         var size = Math.max(query.size || 1, 1);
                         res.json(telemetry.slice(Math.max(telemetry.length - size, 0)));
+                        return;
                     } break;
                     case "minmax": {
                         var max = telemetry[0];
@@ -93,16 +96,20 @@ module.exports = function install (app) {
                             }
                         }
                         res.json([min,max]);
+                        return;
                     }
                     default: {
                         res.json(telemetry);
+                        return;
                     }
                 }
             } else {
                 res.json(telemetry);
+                return;
             }
         } else {
             res.json([]); // send empty array
+            return;
         }
     });
     

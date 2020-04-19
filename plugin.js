@@ -7,7 +7,7 @@ const telemachus = (function() {
     const ONE_SECOND = 1000;
 
     function getTelemetry(telemetryKeyToGet) {
-        return http.get(telemachusApiUrl + "?a0=" + telemetryKeyToGet).then(function(result) {
+        return http.get(telemachusApiUrl + "?a0=" + encodeURIComponent(telemetryKeyToGet)).then(function(result) {
             if (result === null)
                 return null;
             if (result.data) {
@@ -26,7 +26,6 @@ const telemachus = (function() {
     }
 
     function queryTelemetry(resource, request) {
-        console.log(request);
         return http.post(telemachusApiQueryUrl + "/" + resource, request).then(function(result) {
             if (result === null)
                 return null;
@@ -58,112 +57,111 @@ const telemachus = (function() {
                 if (identifier == null) {
                     return null;
                 }
-                
-                if (identifier.key === spacecraft) {
-                    // Root node only
-                    return {
-                        identifier: identifier,
-                        name: dictionary.name,
-                        type: 'folder',
-                        location: 'ROOT'
-                    };
-                } 
-                else {
-                    // Sub-nodes, can be a subsystem or a measurement
-                    for (var i = 0; i < dictionary.subsystems.length; i++) {
-                        var subsystem = dictionary.subsystems[i];
-                        // is subsystem
-                        if (identifier.key === subsystem.identifier) {
-                            return {
-                                identifier: identifier,
-                                name: subsystem.name,
-                                type: "folder",
-                                location: package + ":" + spacecraft
-                            };
-                        } 
-                        // is measurement
-                        else {
-                            for (var j = 0; j < subsystem.measurements.length; j++) {
-                                var measurement = subsystem.measurements[j];
-                                if (identifier.key === measurement.identifier) {
-                                    var values = null;
-                                    switch (measurement.type) {
-                                        case "float": {
-                                            values = [
-                                                {
-                                                    key: "value",               // unique identifier for this field.
-                                                    source: "value",            // identifies the property of a datum where this value is stored. default "key"
-                                                    name: "Value",              // a human readable label for this field. default "key"
-                                                    units: measurement.units,   // the units of this value
-                                                    format: "float",            // a specific format identifier
-                                                    hints: {                    // Hints allow views to intelligently select relevant attributes for display
-                                                        range: 1,
-                                                        y: 1
-                                                    }
-                                                },
-                                                {
-                                                    key: "utc",                 // must match the key of the active time system
-                                                    source: "timestamp",
-                                                    name: "Timestamp",
-                                                    format: "utc",
-                                                    hints: {
-                                                        domain: 1,
-                                                        x: 1
-                                                    }
-                                                }
-                                            ];
-                                        } break;
-                                        case "boolean": {
-                                            values = [
-                                                {
-                                                    key: "value",
-                                                    source: "value",
-                                                    name: "Value",
-                                                    units: measurement.units,
-                                                    format: "enum",
-                                                    enumerations: [
-                                                        {
-                                                            "string": "ON",
-                                                            "value": true
-                                                        },
-                                                        {
-                                                            "string": "OFF",
-                                                            "value": false
+                if (identifier.namespace === package) {
+                    if (identifier.key === spacecraft) {
+                        // Root node only
+                        return {
+                            identifier: identifier,
+                            name: dictionary.name,
+                            type: 'folder',
+                            location: 'ROOT'
+                        };
+                    } 
+                    else {
+                        // Sub-nodes, can be a subsystem or a measurement
+                        for (var i = 0; i < dictionary.subsystems.length; i++) {
+                            var subsystem = dictionary.subsystems[i];
+                            // is subsystem
+                            if (identifier.key === subsystem.identifier) {
+                                return {
+                                    identifier: identifier,
+                                    name: subsystem.name,
+                                    type: "folder",
+                                    location: package + ":" + spacecraft
+                                };
+                            } 
+                            // is measurement
+                            else {
+                                for (var j = 0; j < subsystem.measurements.length; j++) {
+                                    var measurement = subsystem.measurements[j];
+                                    if (identifier.key === measurement.identifier) {
+                                        var values = null;
+                                        switch (measurement.type) {
+                                            case "float": {
+                                                values = [
+                                                    {
+                                                        key: "value",               // unique identifier for this field.
+                                                        source: "value",            // identifies the property of a datum where this value is stored. default "key"
+                                                        name: "Value",              // a human readable label for this field. default "key"
+                                                        units: measurement.units,   // the units of this value
+                                                        format: "float",            // a specific format identifier
+                                                        hints: {                    // Hints allow views to intelligently select relevant attributes for display
+                                                            range: 1,
+                                                            y: 1
                                                         }
-                                                    ],
-                                                    hints: {
-                                                        range: 1,
-                                                        y: 1,
+                                                    },
+                                                    {
+                                                        key: "utc",                 // must match the key of the active time system
+                                                        source: "timestamp",
+                                                        name: "Timestamp",
+                                                        format: "utc",
+                                                        hints: {
+                                                            domain: 1,
+                                                            x: 1
+                                                        }
                                                     }
-                                                },
-                                                {
-                                                    key: "utc",
-                                                    source: "timestamp",
-                                                    name: "Timestamp",
-                                                    format: "utc",
-                                                    hints: {
-                                                        domain: 1,
-                                                        x: 1,
+                                                ];
+                                            } break;
+                                            case "boolean": {
+                                                values = [
+                                                    {
+                                                        key: "value",
+                                                        source: "value",
+                                                        name: "Value",
+                                                        units: measurement.units,
+                                                        format: "enum",
+                                                        enumerations: [
+                                                            {
+                                                                "string": "ON",
+                                                                "value": true
+                                                            },
+                                                            {
+                                                                "string": "OFF",
+                                                                "value": false
+                                                            }
+                                                        ],
+                                                        hints: {
+                                                            range: 1
+                                                        }
+                                                    },
+                                                    {
+                                                        key: "utc",
+                                                        source: "timestamp",
+                                                        name: "Timestamp",
+                                                        format: "utc",
+                                                        hints: {
+                                                            domain: 1
+                                                        }
                                                     }
-                                                }
-                                            ];
-                                        } break;
-                                    }
-                                    return {
-                                        identifier: identifier,
-                                        name: measurement.name,
-                                        type: telemetryType,
-                                        location: package + ":" + subsystem.identifier,
-                                        telemetry: {
-                                            values: values,
+                                                ];
+                                            } break;
+                                        }
+                                        return {
+                                            identifier: identifier,
+                                            name: measurement.name,
+                                            type: telemetryType,
+                                            location: package + ":" + subsystem.identifier,
+                                            telemetry: {
+                                                values: values,
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                    return null;
                 }
+                return null;
             });
         }
 
@@ -202,7 +200,7 @@ const telemachus = (function() {
         return this;
     }
 
-    function realtimeTelemetryProvider() {
+    function telemachusTelemetryProvider() {
         // Historical telemetry
         this.supportsRequest = function(domain) {
             return domain.type === telemetryType;
@@ -257,9 +255,9 @@ const telemachus = (function() {
         });
         openmct.objects.addProvider(package, objectProvider());
         openmct.composition.addProvider(compositionProvider());
-        openmct.telemetry.addProvider(realtimeTelemetryProvider());
+        openmct.telemetry.addProvider(new telemachusTelemetryProvider());
 
-        console.log("KSP plugin installed");
+        console.log("telemachus plugin installed");
     }
 
     return install;

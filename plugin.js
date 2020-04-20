@@ -11,7 +11,11 @@ const telemachus = (function() {
     function dictionaryIdentifierToKey(id) {
         // convert identifier name to key. only alpha numeric and "-" allowed
         var parts = identifierRegex.exec(id);
-        return parts.groups["name"] + "-" + parts.groups["index"];
+        if (parts.groups["index"]) {
+            return parts.groups["name"] + "-" + parts.groups["index"];
+        } else {
+            return parts.groups["name"];
+        }
     }
 
     function getA0(result) {

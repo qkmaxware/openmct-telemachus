@@ -7,6 +7,9 @@
     "telemachus",
     "telemetry"
   ],
+  "dependencies": {
+    "request": "^2.88.2"
+  },
   "author": "Colin Halseth",
   "license": "MIT"
 }

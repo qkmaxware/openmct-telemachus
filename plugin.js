@@ -6,19 +6,32 @@ const telemachus = (function() {
     const telemachusApiQueryUrl = "/proxy/telemachus/history";
     const ONE_SECOND = 1000;
 
+    var identifierRegex = /^(?<name>[^\[]+)(?:\[(?<index>[^\]]*)\])?/; // identifierRegex.exec(string).groups["groupname"]
+
+    function dictionaryIdentifierToKey(id) {
+        // convert identifier name to key. only alpha numeric and "-" allowed
+        var parts = identifierRegex.exec(id);
+        return parts.groups["name"] + "-" + parts.groups["index"];
+    }
+
+    function getA0(result) {
+        var data = result.data;
+        if (typeof(result.data) === "object") {
+            data = result.data["a0"];
+        }
+        else {
+            data = JSON.parse(result.data)["a0"];
+        }
+        return data;
+    }
+
     function getTelemetry(telemetryKeyToGet) {
         return http.get(telemachusApiUrl + "?a0=" + encodeURIComponent(telemetryKeyToGet)).then(function(result) {
             if (result === null)
                 return null;
             if (result.data) {
-                var data = result.data;
-                if (typeof(result.data) === "object") {
-                    data = result.data["a0"];
-                }
-                else {
-                    data = JSON.parse(result.data)["a0"];
-                }
-                return data;
+                var a0 = getA0(result);
+                return a0;
             } else {
                 return null;
             }
@@ -84,7 +97,9 @@ const telemachus = (function() {
                             else {
                                 for (var j = 0; j < subsystem.measurements.length; j++) {
                                     var measurement = subsystem.measurements[j];
-                                    if (identifier.key === measurement.identifier) {
+                                    var parts = identifierRegex.exec(measurement.identifier);
+
+                                    if (identifier.key === dictionaryIdentifierToKey(measurement.identifier)) {
                                         var values = null;
                                         switch (measurement.type) {
                                             case "float": {
@@ -151,6 +166,7 @@ const telemachus = (function() {
                                             name: measurement.name,
                                             type: telemetryType,
                                             location: package + ":" + subsystem.identifier,
+                                            telemachus_resource: measurement.identifier,
                                             telemetry: {
                                                 values: values,
                                             }
@@ -189,7 +205,7 @@ const telemachus = (function() {
                             var measurement = subsystem.measurements[j];
                             elements.push({
                                 namespace: package,
-                                key: measurement.identifier
+                                key: dictionaryIdentifierToKey(measurement.identifier),
                             });
                         }
                     }
@@ -223,7 +239,8 @@ const telemachus = (function() {
             const interval = setInterval(function() {
                 try {
                     var now = Date.now();
-                    getTelemetry(domain.identifier.key).then(function(telemetry){
+                    console.log(domain);
+                    getTelemetry(domain.telemachus_resource || domain.identifier.key).then(function(telemetry){
                         // returned point must be in the form compatible with the object's telemetry object. ie {timestamp: Date, value: number, id: string}
                         if (telemetry !== undefined && telemetry !== null) {
                             var datapoint = { timestamp: now, value: telemetry };
